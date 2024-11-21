@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="https://ujcv.edu.hn/wp-content/uploads/2022/10/cropped-icon-fav-32x32.png" sizes="32x32">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <title>Control asistencias | UJCV</title>
+
+</head>
+<body>
+<script>
+    let asistencias = {{ asistencias | tojson }};  // Pasar los datos desde el backend a JavaScript
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    function formatTime(dateString) {
+        const date = new Date(dateString);
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+
+    function addRowToTable(rowData) {
+        const tableBody = document.getElementById("table-body");
+        const entrada = formatTime(rowData[1]);
+        const salida = rowData[2] ? formatTime(rowData[2]) : "Pendiente";
+        const clase = rowData[3];
+        const imagen=rowData[4];
+            // // Buscar si la clase y entrada ya existen en la tabla
+        const existingRow = Array.from(tableBody.rows).find(row => 
+                 row.cells[3].innerText === clase && row.cells[1].innerText === entrada
+        );
+
+        if (existingRow) {
+                // Si existe la fila, actualizamos la salida
+            existingRow.cells[2].innerText = salida === "Pendiente" ? salida : formatTime(rowData[2]);
+        } else {
+                // Si no existe, creamos una nueva fila
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td style="width:30px"><img src="${imagen}" alt="Imagen" class="foto" style="width: 30px; height: 30px;"></td>
+                <td>${rowData[0]}</td>
+                <td>${entrada}</td>
+                <td>${salida}</td>
+                <td>${clase}</td>
+            `;
+            tableBody.appendChild(newRow);  // Agregar la nueva fila
+        }
+    }
+
+    function fetchRFIDData() {
+        fetch('/rfid')
+            .then(response => response.json())
+            .then(data => {
+                if (data.asistencias) {
+                    asistencias = data.asistencias; // Actualizar la lista completa de asistencias
+                    reloadTable(asistencias); // Recargar la tabla con los nuevos datos
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching RFID data:", error);
+            });
+    }
+
+    function updateDateLabel() {
+        const dateLabel = document.getElementById("date-label");
+        const currentDate = new Date();
+        dateLabel.innerText = formatDate(currentDate);
+    }
+
+    window.onload = function() {
+        updateDateLabel();  // Update the date label with the current date
+        reloadTable(asistencias);  // Renderizar tabla inicial
+        setInterval(fetchRFIDData, 3000);  // Actualizar cada 3 segundos
+    };
+
+    function reloadTable(data) {
+        const tableBody = document.getElementById("table-body");
+        tableBody.innerHTML = ""; // Limpiar la tabla
+
+        data.forEach(row => {
+            const entrada = formatTime(row[1]);
+            const salida = row[2] ? formatTime(row[2]) : "Pendiente";
+            const clase = row[3];
+            const imagen = row[4];
+
+            const newRow = document.createElement("tr");
+            newRow.innerHTML = `
+                <td><img src="${imagen}" alt="Imagen" class="foto" style="width: 30px; height: 30px;"></td>
+                <td>${row[0]}</td>
+                <td>${entrada}</td>
+                <td>${salida}</td>
+                <td>${clase}</td>
+            `;
+            tableBody.appendChild(newRow); // Añadir fila a la tabla
+        });
+    }
+</script>
+<div id="blur">
+    <header>
+        <nav>
+            <img src="../static/img/ujcv2.svg" alt="Logo">
+            <!-- Label para la fecha actual en la esquina derecha -->
+            <label id="date-label"></label>
+        </nav>
+    </header>
+
+    <h1 class="text-center mb-4">Control de Asistencias</h1>
+
+    <table class="table-container" id="accessTable rfid-data">
+        <thead>
+            <tr>
+                <th>Foto</th>
+                <th>Nombre</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th>Clase</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+
+            <!-- Las filas se agregarán aquí dinámicamente -->
+        </tbody>
+    </table>
+
+
+
+<!-- Botón para abrir el contenedor -->
+  <div class="text-center mt-4">
+    <button type="button" class="btn btn-primary" id="buttonPop">Ir a Reportes</button>
+  </div>
+</div>
+
+  <!-- Contenedor del formulario (inicialmente oculto) -->
+  <div class="containerModal center" id="contenedor-reporte" >
+
+    <!-- Botón de cierre (X) -->
+     <div class="franja">
+        <h2 class="h2exit">Personalizar Reporte</h2>
+
+        <i id="buttonPop-dimiss" class="fas fa-times close-icon"></i>
+    </div>
+    <form id="reporteForm" action="/procesar" method="post">
+        <div class="mb-3">
+          <label for="tipo_reporte" class="form-label">Tipo de Reporte</label>
+          <select class="form-select" id="tipo_reporte" name="tipo_reporte">
+            <option value="general" selected>General</option>
+            <option value="individual">Individual</option>
+          </select>
+        </div>
+      
+        <div class="mb-3">
+          <label for="frecuencia" class="form-label">Frecuencia</label>
+          <select class="form-select" id="frecuencia" name="frecuencia">
+            <option value="diario" selected>Diario</option>
+            <option value="semanal">Semanal/Mensual</option>
+          </select>
+        </div>
+      
+        <div class="mb-3">
+          <label for="id_docente" class="form-label">ID del Docente</label>
+          <input type="text" name="id_docente" class="form-control" id="id_docente" placeholder="ID del Docente">
+        </div>
+      
+        <div class="mb-3">
+          <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
+          <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio">
+        </div>
+      
+        <div class="mb-3">
+          <label for="fecha_fin" class="form-label">Fecha de Fin</label>
+          <input type="date" class="form-control" id="fecha_fin" name="fecha_fin">
+        </div>
+      
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary">Generar Reporte</button>
+        </div>
+
+
+
+      </form>
+
+
+  </div>
+
+              <!-- Modal -->
+              <div id="pdfModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                <span class="close" id="closeModal">&times;</span>
+                <div class="check-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <p id="pdfMessage"></p>
+                <p><strong>Nombre del archivo:</strong> <span id="pdfFilename"></span></p>
+                <a id="pdfLink" href="#" target="_blank">Abrir PDF</a>
+                </div>
+            </div>
+  <script src="../static/js/reportePersonalizacion.js"></script>
+  <!-- Incluir Bootstrap JS (opcional si se necesita funcionalidad como modales, tooltips, etc.) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    document.getElementById("buttonPop").addEventListener('click', function(){
+            document.getElementsByClassName("containerModal")[0].classList.add("containerModal-active");
+            document.getElementById("buttonPop").classList.add("esconder");
+            document.getElementById("blur").style.filter = "blur(3px)"; 
+        });
+
+        document.getElementById("buttonPop-dimiss").addEventListener('click', function(){
+            document.getElementsByClassName("containerModal")[0].classList.remove("containerModal-active");
+            document.getElementById("buttonPop").classList.remove("esconder");
+            document.getElementById("blur").style.filter = "none";
+
+            // Limpiar los campos de texto
+            document.getElementById("id_docente").value = ""; 
+            document.getElementById("fecha_inicio").value = "";
+            document.getElementById("fecha_fin").value = "";
+
+            // Seleccionar la opción predeterminada en los selects
+            document.getElementById("tipo_reporte").value = "general"; 
+            document.getElementById("frecuencia").value = "diario"; 
+        });
+  </script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+:root{
+    --button-primary :rgb(0, 130, 202);
+    --button-secundary:#3b82f6;
+    --header:rgb(29, 25, 52);
+
+}
+#blur{
+    transition: background-color 0.3s ease, filter 0.3s ease;
+    width: 100%;
+    height:100vh;
+    background-color: #f4f4f4;
+}
+.franja {
+    width: 100%;
+    display: flex; /* Activa Flexbox */
+    justify-content: center; /* Centra horizontalmente los elementos */
+    align-items: center; /* Centra verticalmente los elementos */
+    background-color: var(--header); /* Color de fondo de la franja */
+    padding: 10px; /* Espaciado interno */
+    position: relative; /* Para posicionar elementos como el botón de cerrar */
+}
+
+.close-icon {
+    position: absolute; /* Coloca el botón de cerrar en una posición fija dentro de la franja */
+    top: 50%; /* Centra verticalmente el ícono */
+    right: 15px; /* Ajusta la distancia al borde derecho */
+    transform: translateY(-50%); /* Compensa el desplazamiento por el `top` */
+    color: #fff; /* Color del ícono */
+    font-size: 1.2rem; /* Tamaño del ícono */
+    cursor: pointer; /* Hace que el ícono sea clickeable */
+}
+
+.h2exit {
+    margin: 0; /* Elimina márgenes para un mejor centrado */
+    color: #fff; /* Cambia el color del título si lo deseas */
+    font-size: 1.5rem; /* Ajusta el tamaño del texto */
+}
+.center{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+.containerModal{
+    width: 65%; 
+    background-color: white; 
+    border-radius: 10px; 
+    padding: 0px 0px 20px 0px; 
+    background-color:#fff; 
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 10px 0 20px rgba(0, 0, 0, 0.1), -10px 0 20px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    opacity: 0;
+    top: -200%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    transform: translate(-50%,-50%) scale(0.5);
+    transition: opacity 300ms ease-in-out, top 300ms ease-in-out, transform 100ms ease-in-out;
+}
+.containerModal-active{
+    opacity: 1;
+    top: 50%;
+    transform: translate(-50%,-50%) scale(1);
+    transition:transform 300ms cubic-bezier(0.18,0.89,0.43.,1.19);
+}
+.containerModal > div{
+    position: relative;
+    top: 10px;
+    opacity: 0;
+}
+
+.containerModal-active > div{
+    top: 0px;
+    opacity: 1;
+}
+#buttonPop {
+    position: fixed;
+    bottom: 0;
+    left: 50%; 
+    transform: translateX(-50%);
+    z-index: 0;
+    margin-bottom: 10px;
+}
+.esconder{
+    visibility: 0;
+}
+form{
+    width: 50%;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+body { 
+    font-family: Arial,sans-serif; 
+    text-align: center;
+    margin: 0;
+    padding: 0; 
+}
+header{
+    width: 100%;
+    height: 80px;
+    background-color: var(--header);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+#date-label {
+    position: absolute;
+    right: 20px;  /* Ajusta el valor según necesites */
+    top: 50%;
+    transform: translateY(-50%);  /* Centra el label verticalmente */
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+span{
+    color: white;
+}
+header nav img{
+    width: 150px;
+}
+h1{ 
+    color: var(--header);
+    text-align: center;
+    padding: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+}
+table { 
+    width: 80%; 
+    margin: 20px auto;
+    border-collapse: collapse;
+    text-align: center;
+}
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+tbody tr:nth-child(odd) td {
+    background-color: #fff; /* Gris claro para las filas impares */
+}
+
+th {
+    background-color: #dcdcdc; /* Gris suave para el encabezado */
+    color: #333; /* Gris oscuro para el texto en el encabezado */
+}
+
+td {
+    background-color: #f1f1f1; /* Blanco para las celdas */
+    color: #666; /* Gris medio para el texto */
+}  
+.foto {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.foto:hover {
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
+}
+/* button { 
+    padding: 15px 20px; 
+    margin-top: 20px; 
+    background-color:var(--button-primary) ;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+} */
+
+/* button:hover{
+    background-color: var(--button-secundary);
+} */
+
+/* Estilo general para el modal */
+.modal {
+    position: fixed; /* Usamos fixed para que esté en la pantalla todo el tiempo */
+    top: 0; /* Colocamos el modal desde la parte superior */
+    left: 0; /* Colocamos el modal desde la parte izquierda */
+    width: 100vw; /* Tomar todo el ancho de la ventana */
+    display: none; /* Inicialmente oculto */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Asegura que esté por encima de otros elementos */
+}
+
+/* Contenido del modal */
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 90%;
+    max-width: 500px; /* Tamaño máximo para el contenido */
+    position: relative;
+}
+
+/* Botón de cierre del modal */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1200;
+    color: var(--header);
+
+}
+
+/* Estilo adicional para el enlace */
+#pdfLink {
+    color: var(--button-primary);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#pdfLink:hover {
+    text-decoration: underline;
+}
+
+/* Estilos del ícono de check */
+.check-icon {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.check-icon i {
+    color: #28a745; /* Verde de éxito */
+    font-size: 50px;
+}
+
+  #pdfFilename{
+    color: var(--header);
+  }
