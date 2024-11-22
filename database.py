@@ -113,7 +113,7 @@ cursor.execute("INSERT INTO clase_dia (id_clase, id_dia, hora_inicio, hora_fin) 
 cursor.execute("INSERT INTO clase_dia (id_clase, id_dia, hora_inicio, hora_fin) VALUES (?, ?, ?, ?)", (2, 2, '07:00:00', '10:00:00'))  # Sistemas Operativos Martes
 cursor.execute("INSERT INTO clase_dia (id_clase, id_dia, hora_inicio, hora_fin) VALUES (?, ?, ?, ?)", (2, 4, '07:00:00', '10:00:00'))  # Sistemas Operativos Jueves
 cursor.execute("INSERT INTO clase_dia (id_clase, id_dia, hora_inicio, hora_fin) VALUES (?, ?, ?, ?)", (3, 1, '17:00:00', '20:00:00'))  # Ingeniería de Software I Lunes
-cursor.execute("INSERT INTO clase_dia (id_clase, id_dia, hora_inicio, hora_fin) VALUES (?, ?, ?, ?)", (3, 3, '17:00:00', '20:00:00'))  # Ingeniería de Software I Miércoles
+cursor.execute("INSERT INTO clase_dia (id_clase, id_dia, hora_inicio, hora_fin) VALUES (?, ?, ?, ?)", (3, 5, '17:00:00', '20:00:00'))  # Ingeniería de Software I Miércoles
 cursor.execute("INSERT INTO clase_dia (id_clase, id_dia, hora_inicio, hora_fin) VALUES (?, ?, ?, ?)", (4, 6, '13:00:00', '15:00:00'))  # Electrónica Digital Viernes
 cursor.execute("INSERT INTO clase_dia (id_clase, id_dia, hora_inicio, hora_fin) VALUES (?, ?, ?, ?)", (4, 5, '13:00:00', '15:00:00'))  # Electrónica viernes
 cursor.execute("INSERT INTO clase_dia (id_clase, id_dia, hora_inicio, hora_fin) VALUES (?, ?, ?, ?)", (5, 5, '17:00:00', '20:00:00'))  # analisis viernes

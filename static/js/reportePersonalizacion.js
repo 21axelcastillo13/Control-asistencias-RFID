@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+
   const tipoReporte = document.getElementById("tipo_reporte");
   const frecuencia = document.getElementById("frecuencia");
   const idDocente = document.getElementById("id_docente");
@@ -25,11 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Listeners para actualizar el formulario dinámicamente
   tipoReporte.addEventListener("change", updateForm);
   frecuencia.addEventListener("change", updateForm);
 
-  // Inicialización: configurar el formulario con valores por defecto
+document.addEventListener("DOMContentLoaded", () => {
   updateForm();
 });
 
@@ -41,41 +40,48 @@ const pdfFilenameElement = document.getElementById('pdfFilename');
 const pdfLinkElement = document.getElementById('pdfLink');
 
 form.addEventListener('submit', async function (e) {
-    e.preventDefault(); // Previene el comportamiento por defecto del formulario
+  e.preventDefault(); // Previene el comportamiento por defecto del formulario
 
-    const formData = new FormData(form);
+  const formData = new FormData(form);
 
-    try {
-        const response = await fetch('/procesar', {
-            method: 'POST',
-            body: formData
-        });
+  // Realiza la solicitud sin 'try...catch'
+  const response = await fetch('/procesar', {
+      method: 'POST',
+      body: formData
+  });
 
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
+  if (!response.ok) {
+      alert(`Error HTTP: ${response.status}`);
+      return;
+  }
 
-        const data = await response.json();
+  const data = await response.json();
+  const errorMessageElement = document.getElementById('errorMessage');
 
-        if (data.status === "success") {
-            const fileUrl = `${window.location.origin}/${data.pdf_ruta}/${data.pdf_filename}`;
-
-            // Actualizar contenido del modal
-            pdfMessageElement.textContent = data.pdf_message;
-            pdfFilenameElement.textContent = data.pdf_filename;
-            pdfLinkElement.href = fileUrl;
-
-            // Mostrar modal
-            modal.style.display = 'flex';
-        } else {
-            console.error('Error en el servidor:', data.error);
-            alert('Ocurrió un error: ' + data.error);
-        }
-    } catch (error) {
-        console.error('Error al procesar:', error);
-        alert('Error al conectarse con el servidor.');
+    if (data.NoAsistencias) {
+      errorMessageElement.style='block';
+      errorMessageElement.textContent=data.NoAsistencias;
+    }else{
+      errorMessageElement.style.display='none';
     }
+  
+  if (data.status === "success") {
+      const fileUrl = `${window.location.origin}/${data.pdf_ruta}/${data.pdf_filename}`;
+
+      // Actualizar contenido del modal
+      pdfMessageElement.textContent = data.pdf_message;
+      pdfFilenameElement.textContent = data.pdf_filename;
+      pdfLinkElement.href = fileUrl;
+
+      modal.style.display = 'flex';
+
+      form.reset();
+      tipoReporte.value = "general";
+      frecuencia.value = "diario";
+      updateForm();
+  }
 });
+
 
 // Cerrar modal al hacer clic en la "x"
 closeModal.addEventListener('click', function () {

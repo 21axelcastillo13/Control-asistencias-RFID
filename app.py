@@ -221,14 +221,14 @@ def procesar():
     try:
         if tipo_reporte == 'general' and frecuencia == 'diario' and fecha_inicio:
             cursor.execute("""SELECT a.id,a.id_docente,a.id_clase,TIME(a.entrada) AS entrada,
-                           TIME(a.salida) AS salida,d.nombre,c.nombre AS clase 
+                           TIME(a.salida) AS salida,d.nombre AS nombre,c.nombre AS clase 
                            FROM asistencia a
                            JOIN docente d ON a.id_docente = d.id_docente
                            JOIN clase c ON a.id_clase = c.id_clase
                            WHERE DATE(a.entrada) = ?""", (fecha_inicio,))
         elif tipo_reporte == 'general' and frecuencia == 'semanal' and fecha_inicio and fecha_fin:
             cursor.execute("""
-                SELECT a.*,d.nombre, c.nombre AS clase 
+                SELECT a.*,d.nombre AS nombre, c.nombre AS clase 
                 FROM asistencia a
                 JOIN docente d ON a.id_docente = d.id_docente
                 JOIN clase c ON a.id_clase = c.id_clase
@@ -237,7 +237,7 @@ def procesar():
         elif tipo_reporte == 'individual' and frecuencia == 'diario' and id_docente and fecha_inicio:
             cursor.execute("""
                 SELECT a.id,a.id_docente,a.id_clase,TIME(a.entrada) AS entrada,
-                TIME(a.salida) AS salida,d.nombre, c.nombre AS clase 
+                TIME(a.salida) AS salida,d.nombre AS nombre, c.nombre AS clase 
                 FROM asistencia a
                 JOIN docente d ON a.id_docente = d.id_docente
                 JOIN clase c ON a.id_clase = c.id_clase
@@ -245,7 +245,7 @@ def procesar():
             """, (id_docente, fecha_inicio))
         elif tipo_reporte == 'individual' and frecuencia == 'semanal' and id_docente and fecha_inicio and fecha_fin:
             cursor.execute("""
-                SELECT a.*, d.nombre, c.nombre AS clase
+                SELECT a.*, d.nombre AS nombre, c.nombre AS clase
                 FROM asistencia a
                 JOIN docente d ON a.id_docente = d.id_docente 
                 JOIN clase c ON a.id_clase = c.id_clase
@@ -257,11 +257,16 @@ def procesar():
         # Obtener resultados
         asistencias = cursor.fetchall()
         conn.close()
+         
 
         # Convertir resultados en lista de diccionarios
         resultados = [dict(asistencia) for asistencia in asistencias]
         print("Resultados de la consulta:", resultados)
         # return jsonify({"success": True, "data": resultados})
+        
+           # Si no se encontraron datos
+        if not resultados:
+            return jsonify({"NoAsistencias": "No se encontraron registros según los requisitos"})
         
         respuesta = generar_pdf_dinamico(
             tipo_reporte=tipo_reporte,
@@ -286,6 +291,7 @@ def procesar():
         })
     
     except Exception as e:
+        print(f"Error en el servidor: {e}")
         conn.close()
         return jsonify({"error": str(e)}), 500
 
@@ -391,10 +397,12 @@ def generar_pdf_dinamico(tipo_reporte, frecuencia, fecha_inicio, fecha_fin=None,
         pdf_filename=f"reporte-{tipo_reporte}-{frecuencia}-{fecha_inicio}-{fecha_fin}.pdf"
         ruta = os.path.join("static","reportes","rango-fechas","general")
     elif tipo_reporte == 'individual' and frecuencia =='diario':
-        pdf_filename = f"reporte-{tipo_reporte}-{frecuencia}-{fecha_inicio}.pdf"
+        docente = resultados[0].get('nombre', "N/A") if resultados and 'nombre' in resultados[0] else "N/A"
+        pdf_filename = f"reporte-{tipo_reporte}-{frecuencia}-{fecha_inicio}-{docente}.pdf"
         ruta = os.path.join("static","reportes","diarios","individual")
     elif tipo_reporte == 'individual' and frecuencia == 'semanal':
-        pdf_filename=f"reporte-{tipo_reporte}-{frecuencia}-{fecha_inicio}-{fecha_fin}.pdf"
+        docente = resultados[0].get('nombre', "N/A") if resultados and 'nombre' in resultados[0] else "N/A"
+        pdf_filename=f"reporte-{tipo_reporte}-{frecuencia}-{fecha_inicio}-{fecha_fin}-{docente}.pdf"
         ruta = os.path.join("static","reportes","rango-fechas","individual")   
     else:
         return jsonify({"error: Invalido" }) ,400   
